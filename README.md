@@ -28,7 +28,7 @@ Minimum configuration in mymodel.json
 {
   ...
   "mixins": {
-    "ChangeStream": {
+    "ModelChanges": {
       "changeStreamModel": "myModelChanges",
       "idKeyName": "myModelId"
     }
@@ -59,7 +59,7 @@ If you only wish to log changes to specific properties, put the property names i
     "description": "string"
   },
   "mixins": {
-    "ChangeStream": {
+    "ModelChanges": {
       "changeStreamModel": "myModelChanges",
       "idKeyName": "myModelId",
       "whitelist": ["name"]
@@ -79,7 +79,7 @@ You can also blacklist if you prefer
     "secret": "string"
   },
   "mixins": {
-    "ChangeStream": {
+    "ModelChanges": {
       "changeStreamModel": "myModelChanges",
       "idKeyName": "myModelId",
       "blacklist": ["secret"]
@@ -96,7 +96,7 @@ The default behaviour logs the full model state for every update. If you would l
 {
   ...
   "mixins": {
-    "ChangeStream": {
+    "ModelChanges": {
       "changeStreamModel": "myModelChanges",
       "idKeyName": "myModelId",
       "deltas": true
@@ -115,7 +115,7 @@ By default, the column used for the name of the logged action (`'create'`, `'upd
 {
   ...
   "mixins": {
-    "ChangeStream": {
+    "ModelChanges": {
       "changeStreamModel": "myModelChanges",
       "idKeyName": "myModelId",
       "actionKey": "model_action"
