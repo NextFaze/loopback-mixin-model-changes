@@ -1,0 +1,32 @@
+{
+  "name": "loopback-mixin-model-changes",
+  "version": "1.0.0",
+  "description": "Track create, update and delete actions on a loopback model",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/spec.js"
+  },
+  "keywords": [
+    "loopback",
+    "mixin",
+    "model",
+    "changes",
+    "audit",
+    "delta",
+    "deltas"
+  ],
+  "author": "NextFaze",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-subset": "^1.5.0",
+    "loopback": "2.x",
+    "loopback-boot": "2.x",
+    "loopback-component-remote-ctx": "^0.2.2",
+    "loopback-datasource-juggler": "2.33.2",
+    "mocha": "^3.2.0"
+  },
+  "dependencies": {
+    "lodash": "^3.10.0"
+  }
+}

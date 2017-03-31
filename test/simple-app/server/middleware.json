@@ -1,0 +1,25 @@
+{
+  "initial:before": {
+  },
+  "initial": {
+  },
+  "session": {
+  },
+  "auth": {
+  },
+  "parse": {
+  },
+  "routes": {
+    "loopback#rest": {
+      "paths": [
+        "${restApiRoot}"
+      ]
+    }
+  },
+  "files": {
+  },
+  "final": {
+  },
+  "final:after": {
+  }
+}
