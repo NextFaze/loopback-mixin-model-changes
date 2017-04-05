@@ -1,5 +1,7 @@
 # Loopback Model Change Mixin
 
+Inspired by [Loopback Auditz](https://github.com/jouke/loopback-auditz). Offers less functionality but more customization.
+
 ## Usage
 
 *Note*: This mixin attempts to make not assumption about how you have setup your models and will not setup any models or properties for you
@@ -29,7 +31,7 @@ Minimum configuration in mymodel.json
   ...
   "mixins": {
     "ModelChanges": {
-      "changeStreamModel": "myModelChanges",
+      "changeModel": "myModelChanges",
       "idKeyName": "myModelId"
     }
   }
@@ -60,7 +62,7 @@ If you only wish to log changes to specific properties, put the property names i
   },
   "mixins": {
     "ModelChanges": {
-      "changeStreamModel": "myModelChanges",
+      "changeModel": "myModelChanges",
       "idKeyName": "myModelId",
       "whitelist": ["name"]
     }
@@ -80,7 +82,7 @@ You can also blacklist if you prefer
   },
   "mixins": {
     "ModelChanges": {
-      "changeStreamModel": "myModelChanges",
+      "changeModel": "myModelChanges",
       "idKeyName": "myModelId",
       "blacklist": ["secret"]
     }
@@ -97,7 +99,7 @@ The default behaviour logs the full model state for every update. If you would l
   ...
   "mixins": {
     "ModelChanges": {
-      "changeStreamModel": "myModelChanges",
+      "changeModel": "myModelChanges",
       "idKeyName": "myModelId",
       "deltas": true
     }
@@ -116,7 +118,7 @@ By default, the column used for the name of the logged action (`'create'`, `'upd
   ...
   "mixins": {
     "ModelChanges": {
-      "changeStreamModel": "myModelChanges",
+      "changeModel": "myModelChanges",
       "idKeyName": "myModelId",
       "actionKey": "model_action"
     }
