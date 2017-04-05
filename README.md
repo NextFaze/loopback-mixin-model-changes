@@ -1,4 +1,4 @@
-# Model Change Mixin
+# Loopback Model Change Mixin
 
 ## Usage
 
@@ -6,7 +6,7 @@
 
 ### Installation
 
-`npm install loopback-mixin-model-changes`
+`npm install loopback-ds-model-changes-mixin`
 
 mode-config.json:
 
@@ -14,7 +14,7 @@ mode-config.json:
 {
   "_meta": {
     "mixins": [
-      "../node_modules/loopback-mixin-model-changes"
+      "../node_modules/loopback-ds-model-changes-mixin"
     ]
   },
 }

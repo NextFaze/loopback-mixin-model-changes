@@ -4,7 +4,7 @@ var chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
 var expect = chai.expect;
 
-var mixin = require('../');
+var mixin = require('../model-changes');
 
 describe('ChangeStream Mixin', function() {
   afterEach(function() {
