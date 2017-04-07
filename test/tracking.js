@@ -1,6 +1,7 @@
 var app = require('./simple-app/server/server');
 var request = require('supertest');
 var expect = require('chai').expect;
+var helper = require('./helper');
 
 var token, user;
 
@@ -21,19 +22,11 @@ describe('User ID Tracking', function() {
     .then(function(res) {
       token = res.body;
     });
-  })
+  });
 
   afterEach(function() {
-    return Promise.all([
-      app.models.User.destroyAll(),
-      app.models.AccessToken.destroyAll(),
-      app.models.remotable.destroyAll(),
-    ])
-    .then(function() {
-      // needs to be separate to clean up the deletes
-      return app.models.remotableHistory.destroyAll();
-    })
-  })
+    return helper.cleanup(app);
+  });
 
   it('should not store user id if user is not authenticated', function() {
     return request(app)

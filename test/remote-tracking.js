@@ -1,18 +1,11 @@
 var app = require('./simple-app/server/server');
 var request = require('supertest');
 var expect = require('chai').expect;
+var helper = require('./helper');
 
 describe('Remote Method Tracking', function() {
   afterEach(function() {
-    return Promise.all([
-      app.models.User.destroyAll(),
-      app.models.AccessToken.destroyAll(),
-      app.models.remotable.destroyAll(),
-    ])
-    .then(function() {
-      // needs to be separate to clean up the deletes
-      return app.models.remotableHistory.destroyAll();
-    })
+    return helper.cleanup(app);
   })
 
   it('should track the remote method used (test 1)', function() {

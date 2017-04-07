@@ -3,15 +3,13 @@ var chai = require('chai');
 var chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
 var expect = chai.expect;
+var helper = require('./helper');
 
 var mixin = require('../model-changes');
 
 describe('Track Actions', function() {
   afterEach(function() {
-    return app.models.widget.destroyAll()
-    .then(function() {
-      return app.models.widgetAudit.destroyAll();
-    });
+    return helper.cleanup(app);
   });
 
   describe('Whitelist', function() {
@@ -19,31 +17,8 @@ describe('Track Actions', function() {
       var memDs = app.dataSource('mem', {
         connector: 'memory'
       });
-      var widget = app.model('widget', {
-        properties: {
-          id: {
-            type: 'string',
-            id: true,
-            defaultFn: 'guid'
-          },
-          name: 'string',
-          description: 'string'
-        },
-        dataSource: 'mem'
-      });
-      var widgetAudit = app.model('widgetAudit', {
-        properties: {
-          id: {
-            type: 'string',
-            id: true,
-            defaultFn: 'guid'
-          },
-          name: 'string',
-          description: 'string',
-          modelId: 'string'
-        },
-        dataSource: 'mem'
-      });
+      var widget = helper.defineWidgetModel(app);
+      var widgetAudit = helper.defineTrackerModel(app);
       mixin(widget, { changeModel: 'widgetAudit', idKeyName: 'modelId', whitelistActions: ['update'] });
     });
 

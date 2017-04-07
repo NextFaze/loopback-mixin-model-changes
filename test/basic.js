@@ -3,15 +3,13 @@ var chai = require('chai');
 var chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
 var expect = chai.expect;
+var helper = require('./helper');
 
 var mixin = require('../model-changes');
 
 describe('Basic Usage', function() {
   afterEach(function() {
-    return app.models.widget.destroyAll()
-    .then(function() {
-      return app.models.widgetAudit.destroyAll();
-    });
+    return helper.cleanup(app);
   });
 
   describe('Tracking Changes', function() {
@@ -19,31 +17,8 @@ describe('Basic Usage', function() {
       var memDs = app.dataSource('mem', {
         connector: 'memory'
       });
-      var widget = app.model('widget', {
-        properties: {
-          id: {
-            type: 'string',
-            id: true,
-            defaultFn: 'guid'
-          },
-          name: 'string',
-          description: 'string'
-        },
-        dataSource: 'mem'
-      });
-      var widgetAudit = app.model('widgetAudit', {
-        properties: {
-          id: {
-            type: 'string',
-            id: true,
-            defaultFn: 'guid'
-          },
-          name: 'string',
-          description: 'string',
-          modelId: 'string'
-        },
-        dataSource: 'mem'
-      });
+      var widget = helper.defineWidgetModel(app);
+      var widgetAudit = helper.defineTrackerModel(app);
       mixin(widget, { changeModel: 'widgetAudit', idKeyName: 'modelId' });
     });
 
@@ -241,31 +216,8 @@ describe('Basic Usage', function() {
         var memDs = app.dataSource('mem', {
           connector: 'memory'
         });
-        var widget = app.model('widget', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string',
-            description: 'string'
-          },
-          dataSource: 'mem'
-        });
-        var widgetAudit = app.model('widgetAudit', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string',
-            description: 'string',
-            modelId: 'string'
-          },
-          dataSource: 'mem'
-        });
+        var widget = helper.defineWidgetModel(app);
+        var widgetAudit = helper.defineTrackerModel(app);
         mixin(widget, { changeModel: 'widgetAudit', idKeyName: 'modelId', deltas: true });
       });
 
@@ -356,30 +308,8 @@ describe('Basic Usage', function() {
         var memDs = app.dataSource('mem', {
           connector: 'memory'
         });
-        var widget = app.model('widget', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string',
-            secret: 'string'
-          },
-          dataSource: 'mem'
-        });
-        var widgetAudit = app.model('widgetAudit', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string',
-            modelId: 'string'
-          },
-          dataSource: 'mem'
-        });
+        var widget = helper.defineWidgetModel(app);
+        var widgetAudit = helper.defineTrackerModel(app);
         mixin(widget, { changeModel: 'widgetAudit', idKeyName: 'modelId', blacklist: ['secret'] });
       });
 
@@ -391,6 +321,7 @@ describe('Basic Usage', function() {
         })
         .then(function(mdl) {
           id = mdl.id;
+          expect(mdl).to.have.property('secret', 'password123');
           return app.models.widgetAudit.find({
             where: {
               action: 'create'
@@ -414,30 +345,8 @@ describe('Basic Usage', function() {
         var memDs = app.dataSource('mem', {
           connector: 'memory'
         });
-        var widget = app.model('widget', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string',
-            secret: 'string'
-          },
-          dataSource: 'mem'
-        });
-        var widgetAudit = app.model('widgetAudit', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string',
-            secret: 'string'
-          },
-          dataSource: 'mem'
-        });
+        var widget = helper.defineWidgetModel(app);
+        var widgetAudit = helper.defineTrackerModel(app);
         mixin(widget, { changeModel: 'widgetAudit', idKeyName: 'modelId', whitelist: ['name'] });
       });
 
@@ -472,27 +381,8 @@ describe('Basic Usage', function() {
         var memDs = app.dataSource('mem', {
           connector: 'memory'
         });
-        var widget = app.model('widget', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-            },
-            name: 'string'
-          },
-          dataSource: 'mem'
-        });
-        var widgetAudit = app.model('widgetAudit', {
-          properties: {
-            id: {
-              type: 'string',
-              id: true,
-              defaultFn: 'guid'
-            },
-            name: 'string'
-          },
-          dataSource: 'mem'
-        });
+        var widget = helper.defineWidgetModel(app);
+        var widgetAudit = helper.defineTrackerModel(app);
         mixin(widget, { changeModel: 'widgetAudit', idKeyName: 'modelId', actionKey: 'model_action' });
       });
 
