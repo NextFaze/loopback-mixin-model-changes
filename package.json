@@ -1,6 +1,6 @@
 {
   "name": "loopback-ds-model-changes-mixin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Track create, update and delete actions on a loopback model",
   "main": "model-changes.js",
   "scripts": {
