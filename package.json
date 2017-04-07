@@ -1,10 +1,17 @@
 {
   "name": "loopback-ds-model-changes-mixin",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Track create, update and delete actions on a loopback model",
   "main": "model-changes.js",
   "scripts": {
     "test": "mocha test/spec.js && jshint model-changes.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NextFaze/loopback-mixin-model-changes"
+  },
+  "bugs": {
+    "url": "https://github.com/NextFaze/loopback-mixin-model-changes/issues"
   },
   "keywords": [
     "loopback",
@@ -15,7 +22,7 @@
     "delta",
     "deltas"
   ],
-  "author": "NextFaze",
+  "author": "NextFaze <npm-support@nextfaze.com>",
   "license": "ISC",
   "devDependencies": {
     "chai": "^3.5.0",
