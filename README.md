@@ -4,7 +4,7 @@ Inspired by [Loopback Auditz](https://github.com/jouke/loopback-auditz). Offers 
 
 ## Usage
 
-*Note*: This mixin attempts to make not assumption about how you have setup your models and will not setup any models or properties for you
+*Note*: This mixin attempts to make not assumption about how you have setup your models and will not setup any models or properties for you. You must setup your tracking models yourself, either by extending the model they track or creating a new model with the properties you with to track on them.
 
 ### Installation
 
@@ -24,7 +24,7 @@ mode-config.json:
 
 ### Basic
 
-Minimum configuration in mymodel.json
+Minimum configuration in mymodel.json (note the `myModelChanges` model must be configured and attached to your app manually)
 
 ```json
 {
