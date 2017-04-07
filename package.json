@@ -4,7 +4,7 @@
   "description": "Track create, update and delete actions on a loopback model",
   "main": "model-changes.js",
   "scripts": {
-    "test": "mocha test/spec.js"
+    "test": "mocha test/spec.js test/tracking.js"
   },
   "keywords": [
     "loopback",
@@ -24,9 +24,13 @@
     "loopback-boot": "2.x",
     "loopback-component-remote-ctx": "^0.2.2",
     "loopback-datasource-juggler": "2.33.2",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "supertest": "^3.0.0"
   },
   "dependencies": {
     "lodash": "^3.10.0"
+  },
+  "optionalDependencies": {
+    "loopback-component-remote-ctx": "^0.2.4"
   }
 }

@@ -61,6 +61,9 @@ module.exports = function(Model, options) {
 
     var idKey = Model.getIdName();
     var relKey = options.idKeyName;
+    var userKey = options.trackUsersAs;
+    var remoteCtx = options.remotCtx || 'remoteCtx';
+    var trackFrom = options.trackUsersFrom || 'userId';
 
     Model.observe('after save', function(ctx, next) {
       if(ctx.Model && trackAgainst[ctx.Model.modelName]) {
@@ -135,6 +138,11 @@ module.exports = function(Model, options) {
         mdls = mdls.filter(function(mdl) {
           return !!mdl;
         });
+        mdls.forEach(function(inst) {
+          if(userKey && opts[remoteCtx]) {
+            inst[userKey] = opts[remoteCtx].req.accessToken[trackFrom];
+          }
+        })
         if(mdls.length) {
           debug(action + ' ' + mdls.length + ' models');
           return ChangeStreamModel.create(mdls, opts, next);
@@ -145,6 +153,9 @@ module.exports = function(Model, options) {
       } else if(val) {
         var changeInstance = buildModelPayload(action, val);
         if(changeInstance) {
+          if(userKey && opts[remoteCtx]) {
+            changeInstance[userKey] = opts[remoteCtx].req.accessToken[trackFrom];
+          }
           debug(action + ' ' + changeInstance[relKey]);
           ChangeStreamModel.create(changeInstance, opts, next);
         } else {
@@ -186,9 +197,11 @@ module.exports = function(Model, options) {
       });
       var id = payload[idKey];
       payload[idKey] = undefined;
-      var deltas = Object.keys(payload).filter(function(key) { return payload[key] !== undefined; });
-      if(!deltas.length) {
-        return null;
+      if(action === 'update') {
+        var deltas = Object.keys(payload).filter(function(key) { return payload[key] !== undefined; });
+        if(!deltas.length) {
+          return null;
+        }
       }
       payload[actionKey] = action;
       payload[relKey] = id;
@@ -224,8 +237,16 @@ module.exports = function(Model, options) {
     }
 
     function extractTxOpts(ctx) {
-      return ctx.options && ctx.options.transaction ? 
-        { transaction: ctx.options.transaction } : {};
+      var opts = {};
+      if(ctx.options) {
+        if(ctx.options.transaction) {
+          opts.transaction = ctx.options.transaction;
+        }
+        if(ctx.options[remoteCtx] && ctx.options[remoteCtx].req && ctx.options[remoteCtx].req.accessToken) {
+          opts[remoteCtx] = ctx.options[remoteCtx];
+        }
+      }
+      return opts;
     }
   })
 };

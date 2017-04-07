@@ -1,6 +1,22 @@
 {
   "_meta": {
-    "sources": [],
-    "mixins": []
+    "sources": ["../models"],
+    "mixins": ["../../../"]
+  },
+  "AccessToken": {
+    "public": false,
+    "dataSource": "db"
+  },
+  "User": {
+    "public": true,
+    "dataSource": "db"
+  },
+  "remotable": {
+    "public": true,
+    "dataSource": "db"
+  },
+  "remotableHistory": {
+    "public": true,
+    "dataSource": "db"
   }
 }

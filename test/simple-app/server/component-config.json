@@ -1,2 +1,7 @@
 {
+  "loopback-component-remote-ctx": {
+    "enabled": true,
+    "whiteList": ["remotable"],
+    "argName": "remoteCtx"
+  }
 }

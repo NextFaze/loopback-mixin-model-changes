@@ -1,0 +1,16 @@
+{
+  "name": "remotable",
+  "base": "PersistedModel",
+  "mixins": {
+    "ModelChanges": {
+      "changeModel": "remotableHistory",
+      "idKeyName": "remotableId",
+      "trackUsersAs": "userId"
+    }
+  },
+  "properties": {
+    "description": {
+      "type": "string"
+    }
+  }
+}

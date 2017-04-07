@@ -1,0 +1,12 @@
+{
+  "name": "remotableHistory",
+  "base": "remotable",
+  "properties": {
+    "userId": {
+      "type": "number"
+    },
+    "remotableId": {
+      "type": "number"
+    }
+  }
+}
