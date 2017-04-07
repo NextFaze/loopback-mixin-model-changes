@@ -4,8 +4,7 @@ var expect = require('chai').expect;
 
 var token, user;
 
-describe('User Tracking', function() {
-
+describe('User ID Tracking', function() {
   beforeEach(function() {
     var userData = {
       email: 'user@example.com',

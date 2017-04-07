@@ -2,28 +2,7 @@ var app = require('./simple-app/server/server');
 var request = require('supertest');
 var expect = require('chai').expect;
 
-var token, user;
-
-describe('User Tracking', function() {
-
-  beforeEach(function() {
-    var userData = {
-      email: 'user@example.com',
-      password: 'password123'
-    };
-    return app.models.User.create(userData)
-    .then(function(res) {
-      user = res;
-      return request(app)
-        .post('/api/Users/login')
-        .send(userData)
-        .expect(200)
-    })
-    .then(function(res) {
-      token = res.body;
-    });
-  })
-
+describe('Remote Method Tracking', function() {
   afterEach(function() {
     return Promise.all([
       app.models.User.destroyAll(),

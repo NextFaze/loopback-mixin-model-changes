@@ -4,7 +4,7 @@
   "description": "Track create, update and delete actions on a loopback model",
   "main": "model-changes.js",
   "scripts": {
-    "test": "mocha test/spec.js test/tracking.js test/whitelist-actions.js test/remote-tracking.js"
+    "test": "mocha test/spec.js"
   },
   "keywords": [
     "loopback",
