@@ -185,6 +185,10 @@ This will store the remote method name in the `remoteMethod` property of your tr
   }
 ```
 
+### Custom Action Names
+
+By default, the actions are stored as 'create', 'update' and 'delete. These can be customised with the mixin properties `createActionName`, `updateActionName` and `deleteActionName`
+
 # Dev
 
 ### Tests

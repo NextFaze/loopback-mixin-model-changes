@@ -9,6 +9,13 @@ module.exports = function(Model, options) {
       console.warn(err);
       return;
     }
+
+    var actions = {
+      CREATE: options.createActionName || 'create',
+      UPDATE: options.updateActionName || 'update',
+      DELETE: options.deleteActionName || 'delete'
+    }
+
     options = Object.assign({}, options);
     if(!options.changeModel || !options.idKeyName) {
       debug('No change model or id key name defined for ', Model.modelName, ' - ignoring...');
@@ -81,14 +88,14 @@ module.exports = function(Model, options) {
       var ChangeStreamModel = Model.app.models[options.changeModel];
       var opts = extractTxOpts(ctx);
       if (ctx.isNewInstance) {
-        recordModelChange('create', ctx.instance, opts, next);
+        recordModelChange(actions.CREATE, ctx.instance, opts, next);
       } else {
         if(ctx.options.previousValue) {
           var change = ctx.instance;
           if(deltas) {
             change = extractDeltas(ctx.options.previousValue, change);
           }
-          recordModelChange('update', change, opts, next);
+          recordModelChange(actions.UPDATE, change, opts, next);
         } else if(ctx.options.previousValues) {
           var idName = Model.dataSource.idName(Model.modelName);
           var ids = ctx.options.previousValues.map(function(inst) { return inst[idName]; });
@@ -113,7 +120,7 @@ module.exports = function(Model, options) {
                   }
                 });
               }
-              recordModelChange('update', instances, opts, next);
+              recordModelChange(actions.UPDATE, instances, opts, next);
             })
             .catch(next);
           } else {
@@ -128,9 +135,9 @@ module.exports = function(Model, options) {
     Model.observe('after delete', function(ctx, next) {
       var opts = extractTxOpts(ctx);
       if(ctx.options.previousValue) {
-        recordModelChange('delete', ctx.instance, opts, next);
+        recordModelChange(actions.DELETE, ctx.instance, opts, next);
       } else if(ctx.options.previousValues) {
-        recordModelChange('delete', ctx.options.previousValues, opts, next);
+        recordModelChange(actions.DELETE, ctx.options.previousValues, opts, next);
       } else {
         next();
       }
@@ -161,11 +168,11 @@ module.exports = function(Model, options) {
 
     function extractActionType(ctx) {
       if(ctx.isNewInstance) {
-        return 'create';
+        return actions.CREATE;
       } else if(ctx.data || ctx.instance) {
-        return 'update';
+        return actions.UPDATE;
       } else {
-        return 'delete';
+        return actions.DELETE;
       }
     }
 
@@ -242,7 +249,7 @@ module.exports = function(Model, options) {
           payload[remoteTracker] = remoteName;
         }
       }
-      if(action === 'update') {
+      if(action === actions.UPDATE) {
         var deltas = Object.keys(payload).filter(function(key) { return payload[key] !== undefined; });
         if(!deltas.length) {
           return null;
