@@ -1,6 +1,8 @@
 var _ = require('lodash');
 var debug = require('debug')('loopback:mixin:model-changes');
 
+var trackAgainst = {};
+
 module.exports = function(Model, options) {
   Model.getApp(function(err, app) {
     if(err) {
@@ -12,6 +14,8 @@ module.exports = function(Model, options) {
       debug('No change model or id key name defined for ', Model.modelName, ' - ignoring...');
       return;
     }
+
+    trackAgainst[options.changeModel] = Model.modelName;
     var actionKey = 'action';
     if(options.actionKey) {
       actionKey = options.actionKey;
@@ -36,6 +40,10 @@ module.exports = function(Model, options) {
     }
 
     function beforeHandler(ctx, next) {
+      if(ctx.Model && trackAgainst[ctx.Model.modelName]) {
+        debug(ctx.Model.modelName + ' is being used to track changes against another model. Skipping to avoid infinite recursion');
+        return next();
+      }
       findPrevious(Model, ctx)
       .then(function(res) {
         if(Array.isArray(res)) {
@@ -56,6 +64,10 @@ module.exports = function(Model, options) {
     var relKey = options.idKeyName;
 
     Model.observe('after save', function(ctx, next) {
+      if(ctx.Model && trackAgainst[ctx.Model.modelName]) {
+        debug(ctx.Model.modelName + ' is being used to track changes against another model. Skipping to avoid infinite recursion');
+        return next();
+      }
       var opts = extractTxOpts(ctx);
       if (ctx.isNewInstance) {
         recordModelChange('create', ctx.instance, opts, next);
