@@ -1,5 +1,6 @@
 {
   "name": "remotable",
+  "strict": true,
   "base": "PersistedModel",
   "mixins": {
     "ModelChanges": {
