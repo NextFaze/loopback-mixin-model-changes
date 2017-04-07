@@ -25,6 +25,7 @@ module.exports = function(Model, options) {
 
     var strictAuditng = false;
     var deltas = !!options.deltas;
+    var whitelistActions = (options.whitelistActions && Array.isArray(options.whitelistActions)) ? options.whitelistActions : false;
     var audit = {};
     if(options.whitelist && Array.isArray(options.whitelist)) {
       strictAuditng = true;
@@ -40,6 +41,9 @@ module.exports = function(Model, options) {
     }
 
     function beforeHandler(ctx, next) {
+      if(shouldFilterAction(ctx, next)) {
+       return next(); 
+      }
       if(ctx.Model && trackAgainst[ctx.Model.modelName]) {
         debug(ctx.Model.modelName + ' is being used to track changes against another model. Skipping to avoid infinite recursion');
         return next();
@@ -69,6 +73,9 @@ module.exports = function(Model, options) {
       if(ctx.Model && trackAgainst[ctx.Model.modelName]) {
         debug(ctx.Model.modelName + ' is being used to track changes against another model. Skipping to avoid infinite recursion');
         return next();
+      }
+      if(shouldFilterAction(ctx, next)) {
+       return next(); 
       }
       var ChangeStreamModel = Model.app.models[options.changeModel];
       var opts = extractTxOpts(ctx);
@@ -127,6 +134,28 @@ module.exports = function(Model, options) {
         next();
       }
     });
+
+    function shouldFilterAction(ctx, next) {
+      if(whitelistActions) {
+        var actionType = extractActionType(ctx);
+        if(whitelistActions.indexOf(actionType) < 0) {
+          debug('Ignoring action not on whitelist ', actionType);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function extractActionType(ctx) {
+      if(ctx.isNewInstance) {
+        return 'create';
+      } else if(ctx.data || ctx.instance) {
+        return 'update';
+      } else {
+        return 'delete';
+      }
+    }
+
 
     function recordModelChange(action, val, opts, next) {
       var ChangeStreamModel = Model.app.models[options.changeModel];
