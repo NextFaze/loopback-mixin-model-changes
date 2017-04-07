@@ -59,7 +59,6 @@ module.exports = function(Model, options) {
     Model.observe('before save', beforeHandler);
     Model.observe('before delete', beforeHandler);
 
-    var ChangeStreamModel = Model.app.models[options.changeModel];
     var idKey = Model.getIdName();
     var relKey = options.idKeyName;
 
@@ -68,6 +67,7 @@ module.exports = function(Model, options) {
         debug(ctx.Model.modelName + ' is being used to track changes against another model. Skipping to avoid infinite recursion');
         return next();
       }
+      var ChangeStreamModel = Model.app.models[options.changeModel];
       var opts = extractTxOpts(ctx);
       if (ctx.isNewInstance) {
         recordModelChange('create', ctx.instance, opts, next);
@@ -126,6 +126,7 @@ module.exports = function(Model, options) {
     });
 
     function recordModelChange(action, val, opts, next) {
+      var ChangeStreamModel = Model.app.models[options.changeModel];
       if(Array.isArray(val)) {
         var mdls = val.map(function(old) {
           return buildModelPayload(action, old);
