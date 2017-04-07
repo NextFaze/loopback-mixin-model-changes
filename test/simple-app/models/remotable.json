@@ -5,7 +5,9 @@
     "ModelChanges": {
       "changeModel": "remotableHistory",
       "idKeyName": "remotableId",
-      "trackUsersAs": "userId"
+      "trackUsersAs": "userId",
+      "remoteMethod": "remoteMethod",
+      "remoteOnly": true
     }
   },
   "properties": {

@@ -127,7 +127,7 @@ By default, the column used for the name of the logged action (`'create'`, `'upd
 ```
 
 
-### Tracking user id
+### Tracking User ID
 
 To track user id you will need to install [Loopback Component Remote Context](https://github.com/snowyu/loopback-component-remote-ctx.js) (requires Loopback 2.37+) and ensure that it is configured for any models you wish to track:
 
@@ -157,6 +157,33 @@ my-model.json
 
 Where `trackUsersAs` signifies the property that you wish to use to store the `userId` on the tracking model, `trackUsersFrom` is the property on `accessToken` that stores the user id (default is `userId`) and `remoteCtx` is the custom
 `argName` you specified for `loopback-component-remote-ctx` in `component-config.json` (defaults to `remoteCtx`).
+
+### Tracking Remote Method
+
+To track remote method names you will need to install [Loopback Component Remote Context](https://github.com/snowyu/loopback-component-remote-ctx.js) (requires Loopback 2.37+) and ensure that it is configured for any models you wish to track (See Tracking User Id for setup).
+
+If you wish to track the remote method name used for actions, specify the `remoteMethod` property in your model config:
+
+```json
+  "mixins": {
+    "ModelChanges": {
+      // ...
+      "remoteMethod": "remoteMethod"
+    }
+  }
+```
+
+This will store the remote method name in the `remoteMethod` property of your tracking model. You can also specify if you _only_ watch to track actions that come from remote methods:
+
+```json
+  "mixins": {
+    "ModelChanges": {
+      // ...
+      "remoteMethod": "remoteMethod",
+      "remoteOnly": true"
+    }
+  }
+```
 
 # Dev
 

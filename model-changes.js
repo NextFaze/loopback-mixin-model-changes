@@ -67,6 +67,7 @@ module.exports = function(Model, options) {
     var relKey = options.idKeyName;
     var userKey = options.trackUsersAs;
     var remoteCtx = options.remotCtx || 'remoteCtx';
+    var remoteTracker = options.remoteMethod;
     var trackFrom = options.trackUsersFrom || 'userId';
 
     Model.observe('after save', function(ctx, next) {
@@ -143,7 +144,19 @@ module.exports = function(Model, options) {
           return true;
         }
       }
+      if(options.remoteOnly && !remoteMethodName(ctx.options)) {
+        return true;
+      }
       return false;
+    }
+
+    function remoteMethodName(opts) {
+      try {
+        methodName = opts[remoteCtx].method.name;
+        return methodName;
+      } catch(ex) {
+        return null;
+      }
     }
 
     function extractActionType(ctx) {
@@ -161,17 +174,12 @@ module.exports = function(Model, options) {
       var ChangeStreamModel = Model.app.models[options.changeModel];
       if(Array.isArray(val)) {
         var mdls = val.map(function(old) {
-          return buildModelPayload(action, old);
+          return buildModelPayload(action, old, opts);
         });
         // Remove any null payloads
         mdls = mdls.filter(function(mdl) {
           return !!mdl;
         });
-        mdls.forEach(function(inst) {
-          if(userKey && opts[remoteCtx]) {
-            inst[userKey] = opts[remoteCtx].req.accessToken[trackFrom];
-          }
-        })
         if(mdls.length) {
           debug(action + ' ' + mdls.length + ' models');
           return ChangeStreamModel.create(mdls, opts, next);
@@ -180,11 +188,8 @@ module.exports = function(Model, options) {
           next();
         }
       } else if(val) {
-        var changeInstance = buildModelPayload(action, val);
+        var changeInstance = buildModelPayload(action, val, opts);
         if(changeInstance) {
-          if(userKey && opts[remoteCtx]) {
-            changeInstance[userKey] = opts[remoteCtx].req.accessToken[trackFrom];
-          }
           debug(action + ' ' + changeInstance[relKey]);
           ChangeStreamModel.create(changeInstance, opts, next);
         } else {
@@ -212,7 +217,7 @@ module.exports = function(Model, options) {
       return _.pick(upd, deltaKeys);
     }
 
-    function buildModelPayload(action, data) {
+    function buildModelPayload(action, data, opts) {
       var payload = {};
       Model.forEachProperty(function(prop) {
         if(strictAuditng && audit[prop] !== true) {
@@ -226,6 +231,17 @@ module.exports = function(Model, options) {
       });
       var id = payload[idKey];
       payload[idKey] = undefined;
+      if(userKey && opts[remoteCtx]) {
+        try {
+          payload[userKey] = opts[remoteCtx].req.accessToken[trackFrom];
+        } catch(ex) {}
+      }
+      if(remoteTracker) {
+        var remoteName = remoteMethodName(opts);
+        if(remoteName) {
+          payload[remoteTracker] = remoteName;
+        }
+      }
       if(action === 'update') {
         var deltas = Object.keys(payload).filter(function(key) { return payload[key] !== undefined; });
         if(!deltas.length) {
@@ -271,7 +287,7 @@ module.exports = function(Model, options) {
         if(ctx.options.transaction) {
           opts.transaction = ctx.options.transaction;
         }
-        if(ctx.options[remoteCtx] && ctx.options[remoteCtx].req && ctx.options[remoteCtx].req.accessToken) {
+        if(ctx.options[remoteCtx]) {
           opts[remoteCtx] = ctx.options[remoteCtx];
         }
       }
