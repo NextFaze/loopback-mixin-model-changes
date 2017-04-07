@@ -6,7 +6,7 @@ var helper = require('./helper');
 describe('Remote Method Tracking', function() {
   afterEach(function() {
     return helper.cleanup(app);
-  })
+  });
 
   it('should track the remote method used (test 1)', function() {
     return request(app)
@@ -65,4 +65,4 @@ describe('Remote Method Tracking', function() {
         expect(res[0]).to.have.property('remoteMethod', 'create');
       });
   });
-})
+});

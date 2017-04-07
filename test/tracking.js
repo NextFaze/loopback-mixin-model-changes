@@ -17,7 +17,7 @@ describe('User ID Tracking', function() {
       return request(app)
         .post('/api/Users/login')
         .send(userData)
-        .expect(200)
+        .expect(200);
     })
     .then(function(res) {
       token = res.body;
@@ -35,7 +35,7 @@ describe('User ID Tracking', function() {
         description: 'start'
       })
       .then(function(res) {
-        return app.models.remotableHistory.find()
+        return app.models.remotableHistory.find();
       })
       .then(function(res) {
         expect(res).to.have.lengthOf(1);
@@ -51,7 +51,7 @@ describe('User ID Tracking', function() {
       })
       .set('Authorization', token.id)
       .then(function(res) {
-        return app.models.remotableHistory.find()
+        return app.models.remotableHistory.find();
       })
       .then(function(res) {
         expect(res).to.have.lengthOf(1);
@@ -69,13 +69,13 @@ describe('User ID Tracking', function() {
       }])
       .set('Authorization', token.id)
       .then(function(res) {
-        return app.models.remotableHistory.find()
+        return app.models.remotableHistory.find();
       })
       .then(function(res) {
         expect(res).to.have.lengthOf(2);
         res.forEach(function(r) {
           expect(r).to.have.property('userId', user.id);
-        })
+        });
       });
   });
-})
+});

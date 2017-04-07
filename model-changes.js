@@ -10,30 +10,35 @@ module.exports = function(Model, options) {
       return;
     }
 
-    var actions = {
-      CREATE: options.createActionName || 'create',
-      UPDATE: options.updateActionName || 'update',
-      DELETE: options.deleteActionName || 'delete'
-    }
-
     options = Object.assign({}, options);
+    debug('Init mixin with options', options);
+
+    // Store the model we're tracking against to avoid infinite recursion when using `base` models
+    trackAgainst[options.changeModel] = Model.modelName;
+
     if(!options.changeModel || !options.idKeyName) {
       debug('No change model or id key name defined for ', Model.modelName, ' - ignoring...');
       return;
     }
 
-    trackAgainst[options.changeModel] = Model.modelName;
-    var actionKey = 'action';
-    if(options.actionKey) {
-      actionKey = options.actionKey;
-    }
+    var actions = {
+      CREATE: options.createActionName || 'create',
+      UPDATE: options.updateActionName || 'update',
+      DELETE: options.deleteActionName || 'delete'
+    };
 
-    debug('Init mixin with options', options);
-
-    var strictAuditng = false;
-    var deltas = !!options.deltas;
-    var whitelistActions = (options.whitelistActions && Array.isArray(options.whitelistActions)) ? options.whitelistActions : false;
+    var actionKey = options.actionKey || 'action';
     var audit = {};
+    var deltas = !!options.deltas;
+    var idKey = Model.getIdName();
+    var relKey = options.idKeyName;
+    var remoteCtx = options.remotCtx || 'remoteCtx';
+    var remoteTracker = options.remoteMethod;
+    var strictAuditng = false;
+    var trackFrom = options.trackUsersFrom || 'userId';
+    var userKey = options.trackUsersAs;
+    var whitelistActions = (options.whitelistActions && Array.isArray(options.whitelistActions)) ? options.whitelistActions : false;
+
     if(options.whitelist && Array.isArray(options.whitelist)) {
       strictAuditng = true;
       options.whitelist.forEach(function(prop) {
@@ -47,6 +52,11 @@ module.exports = function(Model, options) {
       });
     }
 
+    Model.observe('before save', beforeHandler);
+    Model.observe('before delete', beforeHandler);
+    Model.observe('after save', afterSaveHandler);
+    Model.observe('after delete', afterDeleteHandler);
+
     function beforeHandler(ctx, next) {
       if(shouldFilterAction(ctx, next)) {
        return next(); 
@@ -56,28 +66,18 @@ module.exports = function(Model, options) {
         return next();
       }
       findPrevious(Model, ctx)
-      .then(function(res) {
-        if(Array.isArray(res)) {
-          ctx.options.previousValues = res;
-        } else {
-          ctx.options.previousValue = res;
-        }
-        next();
-      })
-      .catch(next);
+        .then(function(res) {
+          if(Array.isArray(res)) {
+            ctx.options.previousValues = res;
+          } else {
+            ctx.options.previousValue = res;
+          }
+          next();
+        })
+        .catch(next);
     }
 
-    Model.observe('before save', beforeHandler);
-    Model.observe('before delete', beforeHandler);
-
-    var idKey = Model.getIdName();
-    var relKey = options.idKeyName;
-    var userKey = options.trackUsersAs;
-    var remoteCtx = options.remotCtx || 'remoteCtx';
-    var remoteTracker = options.remoteMethod;
-    var trackFrom = options.trackUsersFrom || 'userId';
-
-    Model.observe('after save', function(ctx, next) {
+    function afterSaveHandler(ctx, next) {
       if(ctx.Model && trackAgainst[ctx.Model.modelName]) {
         debug(ctx.Model.modelName + ' is being used to track changes against another model. Skipping to avoid infinite recursion');
         return next();
@@ -86,7 +86,7 @@ module.exports = function(Model, options) {
        return next(); 
       }
       var ChangeStreamModel = Model.app.models[options.changeModel];
-      var opts = extractTxOpts(ctx);
+      var opts = extractCtxOpts(ctx);
       if (ctx.isNewInstance) {
         recordModelChange(actions.CREATE, ctx.instance, opts, next);
       } else {
@@ -130,10 +130,10 @@ module.exports = function(Model, options) {
           next();
         }
       }
-    });
+    }
 
-    Model.observe('after delete', function(ctx, next) {
-      var opts = extractTxOpts(ctx);
+    function afterDeleteHandler(ctx, next) {
+      var opts = extractCtxOpts(ctx);
       if(ctx.options.previousValue) {
         recordModelChange(actions.DELETE, ctx.instance, opts, next);
       } else if(ctx.options.previousValues) {
@@ -141,7 +141,7 @@ module.exports = function(Model, options) {
       } else {
         next();
       }
-    });
+    }
 
     function shouldFilterAction(ctx, next) {
       if(whitelistActions) {
@@ -159,7 +159,7 @@ module.exports = function(Model, options) {
 
     function remoteMethodName(opts) {
       try {
-        methodName = opts[remoteCtx].method.name;
+        var methodName = opts[remoteCtx].method.name;
         return methodName;
       } catch(ex) {
         return null;
@@ -175,7 +175,6 @@ module.exports = function(Model, options) {
         return actions.DELETE;
       }
     }
-
 
     function recordModelChange(action, val, opts, next) {
       var ChangeStreamModel = Model.app.models[options.changeModel];
@@ -261,7 +260,7 @@ module.exports = function(Model, options) {
     }
 
     function findPrevious(Model, ctx) {
-      var opts = extractTxOpts(ctx);
+      var opts = extractCtxOpts(ctx);
       if (typeof ctx.isNewInstance === 'undefined' || !ctx.isNewInstance) {
         var id = ctx.instance ? ctx.instance.id : null;
         if (!id) {
@@ -272,12 +271,13 @@ module.exports = function(Model, options) {
         }
         if (!id && ctx.options.remoteCtx) {
           id = ctx.options.remoteCtx.req && ctx.options.remoteCtx.req.args ?
-            ctx.options.remoteCtx.req.args.id : null;
+            ctx.options.remoteCtx.req.args.id :
+            null;
         }
         if (id) {
           return Model.findById(id, {}, opts);
         } else {
-          var query = {where: ctx.where} || {};
+          var query = { where: ctx.where } || {};
           return Model.find(query, opts)
           .then(function(oldInstances) {
             return oldInstances;
@@ -288,9 +288,10 @@ module.exports = function(Model, options) {
       }
     }
 
-    function extractTxOpts(ctx) {
+    function extractCtxOpts(ctx) {
       var opts = {};
       if(ctx.options) {
+        // We want to use a transaction if it exists to avoid creating ophaned action records or deadlock
         if(ctx.options.transaction) {
           opts.transaction = ctx.options.transaction;
         }
@@ -300,5 +301,5 @@ module.exports = function(Model, options) {
       }
       return opts;
     }
-  })
+  });
 };

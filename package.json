@@ -4,7 +4,7 @@
   "description": "Track create, update and delete actions on a loopback model",
   "main": "model-changes.js",
   "scripts": {
-    "test": "mocha test/spec.js"
+    "test": "mocha test/spec.js && jshint model-changes.js"
   },
   "keywords": [
     "loopback",
