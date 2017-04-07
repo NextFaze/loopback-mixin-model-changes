@@ -50,6 +50,10 @@ The default behavior is as follows:
 
 All of this can be customised (see below)
 
+### Tracking Date
+
+The mixin does not track the timestamp of actions by default. This can be done easily by applying the `[https://www.npmjs.com/package/loopback-ds-timestamp-mixin](Loopback Timestamp Mixin) to your change tracking model or by adding a date property to your change model with `defaultFn: "now"`.
+
 ### Whitelist and Blacklist Properties
 
 If you only wish to log changes to specific properties, put the property names in the `whitelist` array option:

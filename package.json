@@ -20,6 +20,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-subset": "^1.5.0",
+    "jshint": "^2.9.4",
     "loopback": "2.x",
     "loopback-boot": "2.x",
     "loopback-component-remote-ctx": "^0.2.2",
