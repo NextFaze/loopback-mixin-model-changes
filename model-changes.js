@@ -135,7 +135,7 @@ module.exports = function(Model, options) {
     function afterDeleteHandler(ctx, next) {
       var opts = extractCtxOpts(ctx);
       if(ctx.options.previousValue) {
-        recordModelChange(actions.DELETE, ctx.instance, opts, next);
+        recordModelChange(actions.DELETE, ctx.options.previousValue, opts, next);
       } else if(ctx.options.previousValues) {
         recordModelChange(actions.DELETE, ctx.options.previousValues, opts, next);
       } else {
